@@ -71,9 +71,14 @@ if (!url) {
   const mobileLayout = await page.evaluate(() => {
     const panel = document.querySelector(".panel");
     const map = document.querySelector("#map");
+    const eyebrow = document.querySelector(".eyebrow");
+    const title = document.querySelector("#trip-title");
+    const subtitle = document.querySelector("#trip-subtitle");
+    const overviewButton = document.querySelector("#overview-button");
     const panelRect = panel.getBoundingClientRect();
     const mapRect = map.getBoundingClientRect();
     const panelStyle = getComputedStyle(panel);
+    const headerStyle = getComputedStyle(document.querySelector(".panel-header"));
     return {
       panelPosition: panelStyle.position,
       panelBottom: Math.round(window.innerHeight - panelRect.bottom),
@@ -82,12 +87,22 @@ if (!url) {
       mapTop: Math.round(mapRect.top),
       mapHeight: Math.round(mapRect.height),
       viewportHeight: window.innerHeight,
+      headerPosition: headerStyle.position,
+      eyebrowDisplay: getComputedStyle(eyebrow).display,
+      titleDisplay: getComputedStyle(title).display,
+      subtitlePosition: getComputedStyle(subtitle).position,
+      overviewDisplay: getComputedStyle(overviewButton).display,
     };
   });
   if (mobileLayout.panelPosition !== "fixed") throw new Error(`mobile panel should float over the map, got ${mobileLayout.panelPosition}`);
   if (Math.abs(mobileLayout.panelBottom) > 2) throw new Error(`mobile panel should be anchored to bottom, got ${JSON.stringify(mobileLayout)}`);
-  if (mobileLayout.panelHeight > mobileLayout.viewportHeight * 0.72) throw new Error(`mobile panel should stay as a foldable sheet, got ${JSON.stringify(mobileLayout)}`);
+  if (mobileLayout.panelHeight > mobileLayout.viewportHeight * 0.5) throw new Error(`mobile panel should leave at least half the screen for the map, got ${JSON.stringify(mobileLayout)}`);
   if (mobileLayout.mapTop !== 0 || mobileLayout.mapHeight < mobileLayout.viewportHeight - 2) throw new Error(`mobile map should fill viewport behind sheet, got ${JSON.stringify(mobileLayout)}`);
+  if (mobileLayout.headerPosition !== "static") throw new Error(`mobile header should scroll with the sheet content, got ${JSON.stringify(mobileLayout)}`);
+  if (mobileLayout.eyebrowDisplay !== "none" || mobileLayout.titleDisplay !== "none" || mobileLayout.overviewDisplay !== "none") {
+    throw new Error(`mobile chrome should hide nonessential title controls, got ${JSON.stringify(mobileLayout)}`);
+  }
+  if (mobileLayout.subtitlePosition !== "static") throw new Error(`mobile subtitle should stay in the scrollable content, got ${JSON.stringify(mobileLayout)}`);
 
   await browser.close();
   console.log("Layer 2 browser check passed.", counts);

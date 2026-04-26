@@ -325,7 +325,7 @@ section {
     right: max(10px, env(safe-area-inset-right));
     bottom: 0;
     z-index: 1000;
-    max-height: min(68dvh, 620px);
+    max-height: min(46dvh, 420px);
     padding: 10px 14px calc(14px + env(safe-area-inset-bottom));
     overflow-y: auto;
     border: 1px solid rgba(217, 222, 231, 0.92);
@@ -359,21 +359,23 @@ section {
   }
 
   .panel-header {
-    position: sticky;
-    top: -10px;
-    z-index: 2;
+    position: static;
     grid-template-columns: minmax(0, 1fr) auto;
     gap: 6px 10px;
-    margin: 0 -2px 8px;
-    padding: 0 2px 10px;
-    background: linear-gradient(#fff 86%, rgba(255, 255, 255, 0));
+    margin: 0 0 8px;
+    padding: 0;
+    background: transparent;
   }
 
   .panel-header .mobile-sheet-grip,
-  .panel-header .eyebrow,
-  .panel-header h1,
   .panel-header .subtitle {
     grid-column: 1 / -1;
+  }
+
+  .panel-header .eyebrow,
+  .panel-header h1,
+  .panel-header .primary-button {
+    display: none;
   }
 
   h1 {
