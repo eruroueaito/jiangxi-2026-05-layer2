@@ -26,6 +26,7 @@
     ...data.luggagePolicy.rules.map((rule) => `行李：${rule}`),
   ].map((item) => `<li>${item}</li>`).join("");
   renderBudgetSummary();
+  setupMobileSheetDrag();
 
   const AMap = await AMapLoader.load({
     key: config.jsApiKey,
@@ -74,6 +75,95 @@
         ${(data.budget.railTickets || []).map((item) => `<li>${item.train} ${item.from}→${item.to}：${item.unitCny}元/人 × ${item.travelers}人</li>`).join("")}
       </ul>
     `;
+  }
+
+  function setupMobileSheetDrag() {
+    const panel = document.querySelector(".panel");
+    const grip = document.querySelector(".mobile-sheet-grip");
+    if (!panel || !grip) return;
+    const mobileQuery = window.matchMedia("(max-width: 780px)");
+    const snapPoints = [24, 46, 78];
+    let dragStartY = 0;
+    let dragStartHeight = 46;
+    let isDragging = false;
+
+    function setSheetHeight(value) {
+      const clamped = Math.max(snapPoints[0], Math.min(snapPoints[snapPoints.length - 1], value));
+      panel.style.setProperty("--mobile-sheet-height", `${clamped}dvh`);
+      panel.dataset.sheetHeight = String(Math.round(clamped));
+    }
+
+    function nearestSnap(value) {
+      return snapPoints.reduce((nearest, point) => (
+        Math.abs(point - value) < Math.abs(nearest - value) ? point : nearest
+      ), snapPoints[0]);
+    }
+
+    function startDrag(clientY) {
+      isDragging = true;
+      dragStartY = clientY;
+      dragStartHeight = Number(panel.dataset.sheetHeight || 46);
+      panel.classList.add("dragging");
+    }
+
+    function updateDrag(clientY) {
+      if (!isDragging) return;
+      const deltaVh = ((dragStartY - clientY) / window.innerHeight) * 100;
+      setSheetHeight(dragStartHeight + deltaVh);
+    }
+
+    function finishDrag() {
+      if (!isDragging) return;
+      isDragging = false;
+      panel.classList.remove("dragging");
+      const currentHeight = Number(panel.dataset.sheetHeight || dragStartHeight);
+      setSheetHeight(nearestSnap(currentHeight));
+    }
+
+    grip.addEventListener("mousedown", (event) => {
+      if (!mobileQuery.matches || isDragging) return;
+      event.preventDefault();
+      startDrag(event.clientY);
+      const onMouseMove = (moveEvent) => updateDrag(moveEvent.clientY);
+      const onMouseUp = () => {
+        finishDrag();
+        window.removeEventListener("mousemove", onMouseMove);
+        window.removeEventListener("mouseup", onMouseUp);
+      };
+      window.addEventListener("mousemove", onMouseMove);
+      window.addEventListener("mouseup", onMouseUp);
+    });
+
+    grip.addEventListener("touchstart", (event) => {
+      if (!mobileQuery.matches || isDragging) return;
+      const touch = event.touches[0];
+      if (!touch) return;
+      startDrag(touch.clientY);
+      const onTouchMove = (moveEvent) => {
+        const nextTouch = moveEvent.touches[0];
+        if (!nextTouch) return;
+        moveEvent.preventDefault();
+        updateDrag(nextTouch.clientY);
+      };
+      const onTouchEnd = () => {
+        finishDrag();
+        window.removeEventListener("touchmove", onTouchMove);
+        window.removeEventListener("touchend", onTouchEnd);
+        window.removeEventListener("touchcancel", onTouchEnd);
+      };
+      window.addEventListener("touchmove", onTouchMove, { passive: false });
+      window.addEventListener("touchend", onTouchEnd);
+      window.addEventListener("touchcancel", onTouchEnd);
+    }, { passive: true });
+
+    mobileQuery.addEventListener?.("change", () => {
+      if (mobileQuery.matches) {
+        setSheetHeight(Number(panel.dataset.sheetHeight || 46));
+      } else {
+        panel.style.removeProperty("--mobile-sheet-height");
+      }
+    });
+    setSheetHeight(46);
   }
 
   function toPosition(poi) {

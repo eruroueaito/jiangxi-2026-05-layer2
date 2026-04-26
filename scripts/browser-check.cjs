@@ -103,6 +103,21 @@ if (!url) {
     throw new Error(`mobile chrome should hide nonessential title controls, got ${JSON.stringify(mobileLayout)}`);
   }
   if (mobileLayout.subtitlePosition !== "static") throw new Error(`mobile subtitle should stay in the scrollable content, got ${JSON.stringify(mobileLayout)}`);
+  const beforeDragHeight = mobileLayout.panelHeight;
+  await page.evaluate(() => {
+    document.querySelector(".panel").scrollTop = 0;
+    const grip = document.querySelector(".mobile-sheet-grip");
+    const gripRect = grip.getBoundingClientRect();
+    const startY = gripRect.top + gripRect.height / 2;
+    grip.dispatchEvent(new MouseEvent("mousedown", { clientY: startY, button: 0, bubbles: true }));
+    window.dispatchEvent(new MouseEvent("mousemove", { clientY: 190, bubbles: true }));
+    window.dispatchEvent(new MouseEvent("mouseup", { clientY: 190, bubbles: true }));
+  });
+  await page.waitForTimeout(500);
+  const afterDragHeight = await page.evaluate(() => Math.round(document.querySelector(".panel").getBoundingClientRect().height));
+  if (afterDragHeight <= beforeDragHeight + 80) {
+    throw new Error(`mobile sheet should be draggable upward, before ${beforeDragHeight}, after ${afterDragHeight}`);
+  }
 
   await browser.close();
   console.log("Layer 2 browser check passed.", counts);
