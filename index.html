@@ -1,0 +1,52 @@
+<!doctype html>
+<!--
+  模块名称：Layer 2 interactive map page
+  职责描述：展示江西七日游第二层日级路线、每日 POI 和内嵌交通信息
+  输入/输出：读取 src/trip-data.js；输出浏览器中的交互地图页面
+  依赖关系：高德 JS API loader、src/route-utils.js、src/app.js
+  注意事项：路线线条优先来自高德路径规划；高铁段仍为行程连接线
+-->
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>江西七日游 Layer 2 日级动线</title>
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <main class="layout">
+      <aside class="panel">
+        <header class="panel-header">
+          <p class="eyebrow">Layer 2</p>
+          <h1 id="trip-title">江西七日游</h1>
+          <p id="trip-subtitle" class="subtitle"></p>
+          <button id="overview-button" class="primary-button" type="button">全览</button>
+        </header>
+        <section>
+          <h2>确认前提</h2>
+          <ul id="assumptions" class="compact-list"></ul>
+        </section>
+        <section id="budget-panel">
+          <h2>费用估算</h2>
+          <div id="budget-summary" class="budget-summary"></div>
+        </section>
+        <section>
+          <h2>Day tabs</h2>
+          <div id="day-tabs" class="day-tabs"></div>
+        </section>
+        <section>
+          <h2>每日基地</h2>
+          <div id="day-list" class="day-list"></div>
+        </section>
+      </aside>
+      <section class="map-wrap">
+        <div id="map" aria-label="江西七日游宏观路线地图"></div>
+      </section>
+    </main>
+    <script src="https://webapi.amap.com/loader.js"></script>
+    <script src="./src/trip-data.js"></script>
+    <script src="./src/route-utils.js"></script>
+    <script src="./src/amap-config.js"></script>
+    <script src="./src/app.js"></script>
+  </body>
+</html>

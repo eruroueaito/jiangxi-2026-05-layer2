@@ -1,0 +1,326 @@
+/*
+ * 模块名称：Layer 2 map styles
+ * 职责描述：定义江西日级路线交互地图的双栏和移动端布局
+ * 输入/输出：输入 HTML 结构；输出响应式视觉样式
+ * 依赖关系：Leaflet 默认样式
+ * 注意事项：移动端面板在上，地图在下，禁止横向溢出
+ */
+
+:root {
+  color-scheme: light;
+  --bg: #f6f7f9;
+  --panel: #ffffff;
+  --text: #1c1f23;
+  --muted: #646b74;
+  --line: #d9dee7;
+  --accent: #0f7b6c;
+  --accent-dark: #095b50;
+  --route: #d45a2a;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  overflow-x: hidden;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(360px, 430px) minmax(0, 1fr);
+  min-height: 100vh;
+}
+
+.panel {
+  overflow-y: auto;
+  max-height: 100vh;
+  padding: 24px;
+  background: var(--panel);
+  border-right: 1px solid var(--line);
+}
+
+.panel-header {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.eyebrow {
+  margin: 0;
+  color: var(--accent-dark);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+h1,
+h2,
+p {
+  margin-top: 0;
+}
+
+h1 {
+  margin-bottom: 0;
+  font-size: 28px;
+  line-height: 1.2;
+}
+
+h2 {
+  margin-bottom: 10px;
+  font-size: 16px;
+  line-height: 1.3;
+}
+
+section {
+  padding: 18px 0;
+  border-top: 1px solid var(--line);
+}
+
+.subtitle,
+.compact-list,
+.day-card,
+.poi-card {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.schedule-list {
+  margin: 10px 0 0;
+  padding-left: 20px;
+}
+
+.schedule-list li {
+  margin: 4px 0;
+}
+
+.luggage-segment {
+  border-color: #d7b46a;
+  background: #fffaf0;
+}
+
+.compact-list {
+  padding-left: 18px;
+}
+
+.primary-button,
+.day-tab,
+.poi-focus-button,
+.poi-route-toggle {
+  min-height: 40px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.primary-button {
+  width: max-content;
+  padding: 0 16px;
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+  font-weight: 700;
+}
+
+.day-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.day-tab {
+  padding: 0 12px;
+}
+
+.day-tab.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.day-list,
+.poi-card-list,
+.budget-summary {
+  display: grid;
+  gap: 10px;
+}
+
+.day-card,
+.poi-card,
+.budget-card {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 12px;
+  background: #fbfcfd;
+}
+
+.budget-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.budget-card {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.budget-card strong {
+  color: var(--text);
+  font-size: 20px;
+  line-height: 1.2;
+}
+
+.budget-card span,
+.budget-detail,
+.budget-list {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.budget-list {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.day-card strong {
+  display: block;
+  color: var(--text);
+  font-size: 15px;
+  margin-bottom: 4px;
+}
+
+.poi-next-time {
+  margin: 8px 0 4px;
+  color: var(--text);
+  font-size: 18px;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.poi-next-target,
+.poi-next-options,
+.poi-next-note,
+.poi-next-empty {
+  color: var(--muted);
+}
+
+.poi-card-list {
+  margin-top: 10px;
+}
+
+.poi-card-main {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) 58px;
+  gap: 8px;
+  align-items: center;
+}
+
+.poi-index {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: #eef5f3;
+  color: var(--accent-dark);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.poi-focus-button {
+  min-width: 0;
+  padding: 0 10px;
+  overflow: hidden;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.poi-route-toggle {
+  padding: 0 8px;
+  font-size: 13px;
+}
+
+.poi-route-detail {
+  display: none;
+  margin-top: 8px;
+  padding: 10px 0 0 36px;
+  border-top: 1px solid var(--line);
+}
+
+.poi-card.open .poi-route-detail {
+  display: block;
+}
+
+.map-wrap {
+  min-width: 0;
+  min-height: 100vh;
+}
+
+#map {
+  width: 100%;
+  height: 100vh;
+}
+
+.popup-title {
+  font-weight: 700;
+  color: var(--text);
+}
+
+.popup-meta {
+  margin-top: 4px;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.route-label {
+  width: auto;
+  height: auto;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.route-label span {
+  display: inline-block;
+  padding: 4px 8px;
+  border: 2px solid var(--accent);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 2px 8px rgba(28, 31, 35, 0.16);
+  color: var(--text);
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+@media (max-width: 780px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .panel {
+    max-height: none;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+    padding: 18px;
+  }
+
+  .map-wrap {
+    min-height: 65vh;
+  }
+
+  #map {
+    height: 65vh;
+  }
+}
