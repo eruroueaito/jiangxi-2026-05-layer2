@@ -50,6 +50,10 @@ body {
   margin-bottom: 24px;
 }
 
+.mobile-sheet-grip {
+  display: none;
+}
+
 .eyebrow {
   margin: 0;
   color: var(--accent-dark);
@@ -305,22 +309,147 @@ section {
 }
 
 @media (max-width: 780px) {
+  body {
+    height: 100dvh;
+    overflow: hidden;
+  }
+
   .layout {
-    grid-template-columns: 1fr;
+    display: block;
+    min-height: 100dvh;
   }
 
   .panel {
-    max-height: none;
+    position: fixed;
+    left: max(10px, env(safe-area-inset-left));
+    right: max(10px, env(safe-area-inset-right));
+    bottom: 0;
+    z-index: 1000;
+    max-height: min(68dvh, 620px);
+    padding: 10px 14px calc(14px + env(safe-area-inset-bottom));
+    overflow-y: auto;
+    border: 1px solid rgba(217, 222, 231, 0.92);
     border-right: 0;
-    border-bottom: 1px solid var(--line);
-    padding: 18px;
+    border-bottom: 0;
+    border-radius: 18px 18px 0 0;
+    box-shadow: 0 -10px 28px rgba(28, 31, 35, 0.18);
+    overscroll-behavior: contain;
   }
 
   .map-wrap {
-    min-height: 65vh;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    min-height: 100dvh;
   }
 
   #map {
-    height: 65vh;
+    height: 100dvh;
+  }
+
+  .mobile-sheet-grip {
+    display: block;
+    width: 44px;
+    height: 5px;
+    margin: 0 auto 8px;
+    border-radius: 999px;
+    background: #cfd5dd;
+  }
+
+  .panel-header {
+    position: sticky;
+    top: -10px;
+    z-index: 2;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 6px 10px;
+    margin: 0 -2px 8px;
+    padding: 0 2px 10px;
+    background: linear-gradient(#fff 86%, rgba(255, 255, 255, 0));
+  }
+
+  .panel-header .mobile-sheet-grip,
+  .panel-header .eyebrow,
+  .panel-header h1,
+  .panel-header .subtitle {
+    grid-column: 1 / -1;
+  }
+
+  h1 {
+    font-size: 20px;
+  }
+
+  .subtitle {
+    margin-bottom: 0;
+    font-size: 13px;
+    line-height: 1.45;
+  }
+
+  .primary-button {
+    min-height: 36px;
+  }
+
+  section {
+    margin: 8px 0;
+    padding: 12px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: #fbfcfd;
+  }
+
+  section h2 {
+    margin-bottom: 8px;
+    font-size: 14px;
+  }
+
+  .budget-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .budget-card {
+    padding: 10px 8px;
+  }
+
+  .budget-card strong {
+    font-size: 17px;
+  }
+
+  .day-tabs {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .day-tab,
+  .poi-focus-button,
+  .poi-route-toggle {
+    min-height: 36px;
+  }
+
+  .day-card {
+    background: #fff;
+  }
+
+  .day-card strong {
+    font-size: 14px;
+  }
+
+  .schedule-list {
+    max-height: 138px;
+    overflow-y: auto;
+    padding-right: 4px;
+  }
+
+  .poi-card {
+    background: #fff;
+  }
+
+  .poi-card-main {
+    grid-template-columns: 28px minmax(0, 1fr) 52px;
+  }
+
+  .route-label span {
+    padding: 4px 7px;
+    font-size: 11px;
   }
 }

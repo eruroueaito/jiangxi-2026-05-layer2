@@ -68,6 +68,26 @@ if (!url) {
   await page.screenshot({ path: path.join("output", "playwright", "layer2-mobile.png"), fullPage: true });
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
   if (overflow) throw new Error("mobile viewport has horizontal overflow");
+  const mobileLayout = await page.evaluate(() => {
+    const panel = document.querySelector(".panel");
+    const map = document.querySelector("#map");
+    const panelRect = panel.getBoundingClientRect();
+    const mapRect = map.getBoundingClientRect();
+    const panelStyle = getComputedStyle(panel);
+    return {
+      panelPosition: panelStyle.position,
+      panelBottom: Math.round(window.innerHeight - panelRect.bottom),
+      panelTop: Math.round(panelRect.top),
+      panelHeight: Math.round(panelRect.height),
+      mapTop: Math.round(mapRect.top),
+      mapHeight: Math.round(mapRect.height),
+      viewportHeight: window.innerHeight,
+    };
+  });
+  if (mobileLayout.panelPosition !== "fixed") throw new Error(`mobile panel should float over the map, got ${mobileLayout.panelPosition}`);
+  if (Math.abs(mobileLayout.panelBottom) > 2) throw new Error(`mobile panel should be anchored to bottom, got ${JSON.stringify(mobileLayout)}`);
+  if (mobileLayout.panelHeight > mobileLayout.viewportHeight * 0.72) throw new Error(`mobile panel should stay as a foldable sheet, got ${JSON.stringify(mobileLayout)}`);
+  if (mobileLayout.mapTop !== 0 || mobileLayout.mapHeight < mobileLayout.viewportHeight - 2) throw new Error(`mobile map should fill viewport behind sheet, got ${JSON.stringify(mobileLayout)}`);
 
   await browser.close();
   console.log("Layer 2 browser check passed.", counts);
