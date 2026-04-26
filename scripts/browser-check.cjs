@@ -105,7 +105,23 @@ if (!url) {
   if (mobileLayout.subtitlePosition !== "static") throw new Error(`mobile subtitle should stay in the scrollable content, got ${JSON.stringify(mobileLayout)}`);
   const beforeDragHeight = mobileLayout.panelHeight;
   await page.evaluate(() => {
-    document.querySelector(".panel").scrollTop = 0;
+    document.querySelector(".panel").scrollTop = 260;
+  });
+  const stickyGrip = await page.evaluate(() => {
+    const grip = document.querySelector(".mobile-sheet-grip");
+    const panel = document.querySelector(".panel");
+    const gripRect = grip.getBoundingClientRect();
+    const panelRect = panel.getBoundingClientRect();
+    return {
+      gripTop: Math.round(gripRect.top),
+      panelTop: Math.round(panelRect.top),
+      gripVisible: gripRect.top >= panelRect.top - 2 && gripRect.bottom <= panelRect.bottom + 2,
+    };
+  });
+  if (!stickyGrip.gripVisible || stickyGrip.gripTop > stickyGrip.panelTop + 20) {
+    throw new Error(`mobile drag grip should remain fixed while sheet content scrolls, got ${JSON.stringify(stickyGrip)}`);
+  }
+  await page.evaluate(() => {
     const grip = document.querySelector(".mobile-sheet-grip");
     const gripRect = grip.getBoundingClientRect();
     const startY = gripRect.top + gripRect.height / 2;

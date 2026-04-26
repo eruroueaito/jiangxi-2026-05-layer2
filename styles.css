@@ -358,9 +358,12 @@ section {
 
   .mobile-sheet-grip {
     display: block;
+    position: sticky;
+    top: 0;
+    z-index: 3;
     width: 44px;
     height: 5px;
-    margin: 0 auto 8px;
+    margin: 0 auto 10px;
     border-radius: 999px;
     background: #cfd5dd;
     cursor: ns-resize;
@@ -376,7 +379,6 @@ section {
     background: transparent;
   }
 
-  .panel-header .mobile-sheet-grip,
   .panel-header .subtitle {
     grid-column: 1 / -1;
   }
