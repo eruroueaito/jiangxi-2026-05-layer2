@@ -7,8 +7,8 @@
  */
 
 const tripData = {
-  layer: 2,
-  title: "江西六日游 Layer 2 日级动线",
+  layer: 3,
+  title: "江西六日游 Layer 3 三清山精细路线",
   subtitle: "2026-05-21 至 2026-05-26｜双人｜体力较好｜带行李箱｜三清山必去｜删除婺源/篁岭",
   arrival: {
     stationId: "nanchang-west-station",
@@ -113,6 +113,87 @@ const tripData = {
       },
     ],
   },
+  layer3: [
+    {
+      id: "sanqingshan-layer3",
+      poiId: "sanqingshan-jinsha-lower",
+      title: "三清山金沙索道一日压缩精细路线",
+      sourceNotes: [
+        "高德 POI 校验：金沙索道上站、女神峰、巨蟒出山、阳光海岸、西海岸均有可定位点。",
+        "公开/官方信息显示三清山索道和景区时间会按季节、周末、天气和客流调整，出发前必须刷新。",
+        "本层按2026-05-26 17:00上饶站离开倒推，优先保守下山和返站时间。",
+      ],
+      entrance: {
+        recommended: "金沙索道",
+        reason: "酒店靠近金沙索道，且 Day 6 需要当天回上饶站，东上东下最少换乘、最容易控时。",
+        avoid: "外双溪索道会增加跨入口交通和取行李复杂度，除非金沙索道停运或强限流。",
+      },
+      ticketAndCableway: {
+        refreshRequired: true,
+        planningWindow: "尽量07:15前到金沙索道下站，抢首批或早批上山；以景区当日公告、预约平台和酒店前台确认为准。",
+        planningCost: "门票+上下行索道价格按官方/平台当日为准，本攻略暂不把景区门票计入总预算，避免过期价格误导。",
+        lastDownRule: "13:30后不再向更远支线扩展；14:00前开始下山/返酒店取行李。",
+      },
+      routeOptions: [
+        {
+          id: "compressed-classic",
+          name: "压缩经典线",
+          minutes: 330,
+          steps: [
+            "金沙索道下站 -> 上站",
+            "巨蟒出山/女神峰",
+            "南清园核心观景",
+            "阳光海岸高空栈道",
+            "西海岸视野段",
+            "按体力回金沙索道下山",
+          ],
+          useWhen: "天气清楚、索道排队可控、07:45前能到达上站。",
+        },
+        {
+          id: "easy-core",
+          name: "轻量核心线",
+          minutes: 240,
+          steps: [
+            "金沙索道上站",
+            "巨蟒出山",
+            "女神峰",
+            "南清园短环线",
+            "金沙索道下山",
+          ],
+          useWhen: "前一晚休息不足、山上雾大、腿部状态一般，或索道排队超过45分钟。",
+        },
+        {
+          id: "bad-weather",
+          name: "雨雾备选线",
+          minutes: 180,
+          steps: [
+            "只保留金沙索道上下",
+            "巨蟒出山/女神峰附近短停",
+            "放弃西海岸和阳光海岸远支线",
+            "提前回酒店取行李并改早一班接驳回上饶",
+          ],
+          useWhen: "雷雨、大雾、栈道湿滑、景区广播限制通行或当天必须稳住17:00离开。",
+        },
+      ],
+      photoCheckpoints: [
+        "巨蟒出山：上午光线更稳，先拍标志性峰体。",
+        "女神峰/东方女神：和巨蟒出山相邻，适合压缩线首段完成。",
+        "阳光海岸：晴天视野好时保留，雾大时可删。",
+        "西海岸：高空栈道视野段，只有在时间和体力都富余时进入。",
+      ],
+      supplies: [
+        "轻装上山，行李留酒店或前台；只带水、雨衣、防晒、充电宝和少量补给。",
+        "山上餐饮和厕所按景区开放情况变化，进入远支线前先补水上厕所。",
+        "5月山上温差和阵雨概率较高，雨衣优先于雨伞。",
+      ],
+      risks: [
+        "索道排队或限流会吞掉核心游览时间，超过45分钟就切轻量核心线。",
+        "栈道雨雾湿滑时不要赶西海岸/阳光海岸远支线。",
+        "必须盯住下行索道和返上饶接驳末班，13:30后不再继续远离金沙索道。",
+        "如公共班车时间不匹配，优先提前下山，不用连续长途打车硬赶。",
+      ],
+    },
+  ],
   mustSeePoiIds: ["sanqingshan-jinsha-lower"],
   pois: [
     { id: "nanchang-west-station", name: "南昌西站", city: "南昌", type: "station", lng: 115.792938, lat: 28.622886, core: true, openTime: "到达 13:00", rating: null, note: "带箱抵达，优先打车/地铁到酒店。" },
@@ -132,6 +213,11 @@ const tripData = {
     { id: "shangrao-station", name: "上饶站", city: "上饶", type: "station", lng: 118.006797, lat: 28.490464, core: true, openTime: "高铁/离开枢纽", rating: 4.6, note: "景德镇转三清山的公共交通中转点，旁边汽车东站可接旅游班车。" },
     { id: "sanqingshan-hanting-jinsha", name: "汉庭酒店(上饶三清山金沙索道店)", city: "上饶三清山", type: "hotel", lng: 118.100321, lat: 28.918452, core: true, openTime: "推荐住宿基地", rating: 4.6, note: "靠近金沙索道，便于行李留店和早上山。" },
     { id: "sanqingshan-jinsha-lower", name: "三清山金沙索道下站", city: "上饶三清山", type: "mountain-gate", lng: 118.093508, lat: 28.923283, core: true, openTime: "索道以当日公告为准", rating: 4.3, note: "三清山压缩版一日游入口，早上第一批上山，下午回上饶离开。" },
+    { id: "sanqingshan-jinsha-upper", name: "三清山金沙索道上站", city: "上饶三清山", type: "cableway", lng: 118.076082, lat: 28.907096, core: true, openTime: "索道以当日公告为准", rating: 4.3, note: "Amap POI B0FFFQZC5O；上站后开始山上步行环线。" },
+    { id: "sanqingshan-goddess", name: "三清山女神峰/东方女神", city: "上饶三清山", type: "photo-spot", lng: 118.071571, lat: 28.905645, core: true, openTime: "旺季常见08:00-17:00/周末07:30-17:30，需当日刷新", rating: 4.0, note: "Amap POI 女神峰；与巨蟒出山组成金沙索道上站后的第一组核心看点。" },
+    { id: "sanqingshan-python", name: "三清山巨蟒出山", city: "上饶三清山", type: "photo-spot", lng: 118.069954, lat: 28.905746, core: true, openTime: "07:00-17:30，需当日刷新", rating: 4.2, note: "Amap POI B03190139E；三清山标志性峰体，优先拍。" },
+    { id: "sanqingshan-sunshine-coast", name: "三清山阳光海岸", city: "上饶三清山", type: "skywalk", lng: 118.073365, lat: 28.906546, core: true, openTime: "08:00-16:30，需当日刷新", rating: 4.1, note: "晴天视野价值高；雨雾或时间不足时可删。" },
+    { id: "sanqingshan-west-coast", name: "三清山西海岸景区", city: "上饶三清山", type: "skywalk", lng: 118.06025, lat: 28.904391, core: true, openTime: "旺季常见08:00-17:00/周末07:30-17:30，需当日刷新", rating: 4.2, note: "高空栈道视野段，只有体力和时间充足才进入。" },
   ],
   days: [
     {
@@ -218,12 +304,14 @@ const tripData = {
       weekday: "Tue",
       base: "上饶站离开",
       theme: "三清山压缩版高光，下午公共接驳回上饶离开",
-      load: "约14,000-18,000步；山上路线 Layer 3 需继续细化",
-      poiIds: ["sanqingshan-hanting-jinsha", "sanqingshan-jinsha-lower", "shangrao-station"],
+      load: "约14,000-18,000步；按Layer 3压缩经典线执行，雨雾切轻量核心线",
+      poiIds: ["sanqingshan-hanting-jinsha", "sanqingshan-jinsha-lower", "sanqingshan-jinsha-upper", "sanqingshan-python", "sanqingshan-goddess", "sanqingshan-sunshine-coast", "sanqingshan-west-coast", "sanqingshan-jinsha-upper", "sanqingshan-jinsha-lower", "sanqingshan-hanting-jinsha", "shangrao-station"],
       schedule: [
         "06:45 酒店早餐，行李寄存在酒店或前台。",
         "07:15 到金沙索道下站，尽量第一批上山。",
-        "07:45-13:30 三清山核心压缩环线，放弃过远支线。",
+        "07:45-09:20 金沙索道上站后先完成巨蟒出山、女神峰/东方女神。",
+        "09:20-12:40 天气清楚走阳光海岸+西海岸压缩视野段；雨雾或排队严重则切轻量核心线。",
+        "12:40-13:30 回到金沙索道上站附近，补给、排队下山；13:30后不再向远支线扩展。",
         "14:00-15:40 公共班车/接驳回上饶站。",
         "16:00 进站，17:00离开。",
       ],
@@ -250,6 +338,13 @@ const tripData = {
     { day: 5, from: "jingdezhen-north-station", to: "shangrao-station", luggage: true, transport: { rail: "12306样例主推G1456，景德镇北09:03 -> 上饶09:55，约52分钟，二等座63.5元/人。", railMin: 52, note: "删除婺源/篁岭后的核心转场；目标日需临近开售后刷新。" } },
     { day: 5, from: "shangrao-station", to: "sanqingshan-hanting-jinsha", luggage: true, transport: { shuttle: "上饶站旁汽车东站/客运点到三清山旅游班车或公共接驳，公开攻略票价约27元/人，班次需赣悦行/当地客运刷新。", shuttleMin: 95, unitCny: 27, note: "用班车/公共接驳替代75km长途打车，符合非必要打车不超过1小时约束。" } },
     { day: 6, from: "sanqingshan-hanting-jinsha", to: "sanqingshan-jinsha-lower", transport: { drivingKm: 1.2, drivingMin: 4, walkingM: 1200, walkingMin: 18, note: "早上可短打车或步行到金沙索道，节省登山前体力。" } },
+    { day: 6, from: "sanqingshan-jinsha-lower", to: "sanqingshan-jinsha-upper", transport: { cableway: "金沙索道上行，时间和票务以当日公告为准。", walkingMin: 12, note: "地图用直连表示索道，不代表步行导航。" } },
+    { day: 6, from: "sanqingshan-jinsha-upper", to: "sanqingshan-python", transport: { walkingM: 700, walkingMin: 25, note: "上站后先拍巨蟒出山，形成第一段核心看点。" } },
+    { day: 6, from: "sanqingshan-python", to: "sanqingshan-goddess", transport: { walkingM: 350, walkingMin: 12, note: "巨蟒出山与女神峰相邻，先完成必拍点。" } },
+    { day: 6, from: "sanqingshan-goddess", to: "sanqingshan-sunshine-coast", transport: { walkingM: 1100, walkingMin: 45, note: "晴天保留阳光海岸；雨雾或排队严重时从这里折返。" } },
+    { day: 6, from: "sanqingshan-sunshine-coast", to: "sanqingshan-west-coast", transport: { walkingM: 1800, walkingMin: 70, note: "远支线，只有体力、天气和时间都允许时进入。" } },
+    { day: 6, from: "sanqingshan-west-coast", to: "sanqingshan-jinsha-upper", transport: { walkingM: 2200, walkingMin: 85, note: "13:30前必须回到金沙索道上站方向，否则直接放弃西海岸深段。" } },
+    { day: 6, from: "sanqingshan-jinsha-upper", to: "sanqingshan-jinsha-lower", transport: { cableway: "金沙索道下行，必须刷新末班和排队时间。", walkingMin: 12, note: "下山后回酒店取行李。" } },
     { day: 6, from: "sanqingshan-jinsha-lower", to: "sanqingshan-hanting-jinsha", transport: { drivingKm: 1.2, drivingMin: 4, walkingM: 1200, walkingMin: 18, note: "下山后回酒店取行李。" } },
     { day: 6, from: "sanqingshan-hanting-jinsha", to: "shangrao-station", luggage: true, transport: { shuttle: "三清山脚到上饶站公共班车/接驳，按27元/人估算，实际班次需提前确认。", shuttleMin: 95, unitCny: 27, note: "避免超过1小时的非必要长途打车；如果班车时间不匹配，需要调整下山时间或恢复第7天。" } },
   ],

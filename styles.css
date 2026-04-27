@@ -152,14 +152,18 @@ section {
 
 .day-list,
 .poi-card-list,
-.budget-summary {
+.budget-summary,
+.layer3-list,
+.layer3-options {
   display: grid;
   gap: 10px;
 }
 
 .day-card,
 .poi-card,
-.budget-card {
+.budget-card,
+.layer3-card,
+.layer3-option {
   border: 1px solid var(--line);
   border-radius: 8px;
   padding: 12px;
@@ -186,7 +190,10 @@ section {
 
 .budget-card span,
 .budget-detail,
-.budget-list {
+.budget-list,
+.layer3-meta,
+.layer3-warning,
+.layer3-option span {
   color: var(--muted);
   font-size: 13px;
   line-height: 1.45;
@@ -197,11 +204,36 @@ section {
   padding-left: 18px;
 }
 
-.day-card strong {
+.day-card strong,
+.layer3-card strong,
+.layer3-option b {
   display: block;
   color: var(--text);
   font-size: 15px;
   margin-bottom: 4px;
+}
+
+.layer3-warning {
+  margin: 8px 0;
+  padding: 8px 10px;
+  border-left: 3px solid #d7b46a;
+  background: #fffaf0;
+}
+
+.layer3-option {
+  background: #fff;
+}
+
+.layer3-option ol,
+.layer3-grid ul {
+  margin: 8px 0 0;
+  padding-left: 18px;
+}
+
+.layer3-grid {
+  display: grid;
+  gap: 10px;
+  margin-top: 10px;
 }
 
 .poi-next-time {

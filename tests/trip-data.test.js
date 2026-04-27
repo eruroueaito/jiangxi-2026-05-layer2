@@ -11,13 +11,46 @@ const { tripData } = require("../src/trip-data.js");
 const { createRouteSegments, estimateBudgetTotals, getRecommendedTransport, getVisibleDays } = require("../src/route-utils.js");
 
 function testUserConstraintsAreEncoded() {
-  assert.equal(tripData.layer, 2);
+  assert.equal(tripData.layer, 3);
   assert.equal(tripData.fixedHotelIds.nanchang, "nanchang-hanting-xuefu-east");
   assert.equal(tripData.arrival.stationId, "nanchang-west-station");
   assert.equal(tripData.arrival.time, "2026-05-21 13:00");
   assert.equal(tripData.departure.stationId, "shangrao-station");
   assert.equal(tripData.departure.time, "2026-05-26 17:00");
   assert.equal(tripData.luggagePolicy.mode, "drop-store-first");
+}
+
+function testSanqingshanLayerThreeIsEncoded() {
+  const deepDive = tripData.layer3?.find((item) => item.poiId === "sanqingshan-jinsha-lower");
+  assert.ok(deepDive, "missing Sanqingshan Layer 3 deep dive");
+  assert.equal(deepDive.entrance.recommended, "金沙索道");
+  assert.ok(deepDive.ticketAndCableway.refreshRequired, "Layer 3 ticket/cableway info should require refresh");
+  assert.ok(deepDive.routeOptions.some((option) => option.id === "compressed-classic" && option.minutes <= 360));
+  assert.ok(deepDive.routeOptions.some((option) => option.id === "bad-weather"));
+  assert.ok(deepDive.photoCheckpoints.length >= 4);
+  assert.ok(deepDive.risks.some((risk) => risk.includes("末班")));
+}
+
+function testSanqingshanInternalPoisAndSegmentsExist() {
+  const ids = new Set(tripData.pois.map((poi) => poi.id));
+  for (const id of [
+    "sanqingshan-jinsha-upper",
+    "sanqingshan-goddess",
+    "sanqingshan-python",
+    "sanqingshan-sunshine-coast",
+    "sanqingshan-west-coast",
+  ]) {
+    assert.ok(ids.has(id), `missing Sanqingshan Layer 3 POI: ${id}`);
+  }
+
+  const day6Ids = tripData.days.find((day) => day.day === 6).poiIds;
+  assert.ok(day6Ids.indexOf("sanqingshan-jinsha-upper") > day6Ids.indexOf("sanqingshan-jinsha-lower"));
+  assert.ok(day6Ids.includes("sanqingshan-west-coast"));
+
+  const segmentPairs = tripData.dailySegments.filter((segment) => segment.day === 6).map((segment) => `${segment.from}->${segment.to}`);
+  assert.ok(segmentPairs.includes("sanqingshan-jinsha-upper->sanqingshan-python"));
+  assert.ok(segmentPairs.includes("sanqingshan-python->sanqingshan-goddess"));
+  assert.ok(segmentPairs.includes("sanqingshan-sunshine-coast->sanqingshan-west-coast"));
 }
 
 function testMustSeePoisExist() {
@@ -171,6 +204,8 @@ function testVisibleDaysDefaultToAllDays() {
 }
 
 testUserConstraintsAreEncoded();
+testSanqingshanLayerThreeIsEncoded();
+testSanqingshanInternalPoisAndSegmentsExist();
 testMustSeePoisExist();
 testCoreCoordinatesArePlausible();
 testDailyPoiOrderMatchesPlan();
@@ -184,4 +219,4 @@ testDayTwoDoesNotBacktrackToHotelBeforeTengwangPavilion();
 testBudgetEstimatesAreEncoded();
 testVisibleDaysDefaultToAllDays();
 
-console.log("Layer 2 trip data tests passed.");
+console.log("Layer 3 trip data tests passed.");

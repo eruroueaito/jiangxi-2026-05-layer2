@@ -26,6 +26,7 @@
     ...data.luggagePolicy.rules.map((rule) => `行李：${rule}`),
   ].map((item) => `<li>${item}</li>`).join("");
   renderBudgetSummary();
+  renderLayerThreeSummary();
   setupMobileSheetDrag();
 
   const AMap = await AMapLoader.load({
@@ -75,6 +76,37 @@
         ${(data.budget.railTickets || []).map((item) => `<li>${item.train} ${item.from}→${item.to}：${item.unitCny}元/人 × ${item.travelers}人</li>`).join("")}
       </ul>
     `;
+  }
+
+  function renderLayerThreeSummary() {
+    const target = document.getElementById("layer3-list");
+    if (!target || !Array.isArray(data.layer3)) return;
+    target.innerHTML = data.layer3.map((item) => `
+      <article class="layer3-card">
+        <strong>${item.title}</strong>
+        <div class="layer3-meta">入口：${item.entrance.recommended}｜${item.entrance.reason}</div>
+        <div class="layer3-warning">${item.ticketAndCableway.planningWindow}</div>
+        <div class="layer3-options">
+          ${item.routeOptions.map((option) => `
+            <div class="layer3-option">
+              <b>${option.name}</b>
+              <span>${Math.round(option.minutes / 60 * 10) / 10}小时｜${option.useWhen}</span>
+              <ol>${option.steps.map((step) => `<li>${step}</li>`).join("")}</ol>
+            </div>
+          `).join("")}
+        </div>
+        <div class="layer3-grid">
+          <div>
+            <b>拍照点</b>
+            <ul>${item.photoCheckpoints.map((checkpoint) => `<li>${checkpoint}</li>`).join("")}</ul>
+          </div>
+          <div>
+            <b>风险/备选</b>
+            <ul>${item.risks.map((risk) => `<li>${risk}</li>`).join("")}</ul>
+          </div>
+        </div>
+      </article>
+    `).join("");
   }
 
   function setupMobileSheetDrag() {
@@ -314,6 +346,7 @@
     const parts = [];
     if (segment.transport.rail) parts.push(segment.transport.rail);
     if (segment.transport.shuttle) parts.push(segment.transport.shuttle);
+    if (segment.transport.cableway) parts.push(segment.transport.cableway);
     if (segment.transport.drivingKm) parts.push(`驾车约 ${segment.transport.drivingKm} km / ${segment.transport.drivingMin} 分钟`);
     if (segment.transport.walkingM) parts.push(`步行约 ${segment.transport.walkingM} m / ${segment.transport.walkingMin} 分钟`);
     if (segment.transport.unitCny) parts.push(`约 ${segment.transport.unitCny} 元/人`);

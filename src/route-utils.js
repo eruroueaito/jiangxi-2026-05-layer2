@@ -55,6 +55,16 @@ function getRecommendedTransport(segment) {
     };
   }
 
+  if (transport.cableway) {
+    const minutes = transport.cablewayMin || transport.walkingMin || null;
+    return {
+      mode: "索道",
+      minutes,
+      label: minutes ? `索道 ${minutes}分钟` : "索道 时间待查",
+      geometry: "straight",
+    };
+  }
+
   const walkingMin = transport.walkingMin;
   const drivingMin = transport.drivingMin;
   const walkingM = transport.walkingM;

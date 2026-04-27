@@ -33,7 +33,10 @@ if (!url) {
     labels: document.querySelectorAll(".route-label span").length,
     dayTabs: document.querySelectorAll(".day-tab").length,
     budgetCards: document.querySelectorAll(".budget-card").length,
+    layer3Cards: document.querySelectorAll(".layer3-card").length,
+    layer3Options: document.querySelectorAll(".layer3-option").length,
     budgetText: document.querySelector("#budget-panel")?.textContent || "",
+    layer3Text: document.querySelector("#layer3-panel")?.textContent || "",
     mapCanvases: document.querySelectorAll(".amap-layers canvas").length,
     hasSegmentList: Boolean(document.querySelector("#segment-list")),
     routeStatus: window.__AMAP_ROUTE_STATUS,
@@ -47,6 +50,9 @@ if (!url) {
   if (counts.labels < 18) throw new Error(`expected route labels to remain on the map, got ${counts.labels}`);
   if (counts.dayTabs !== 6) throw new Error(`expected 6 day tabs, got ${counts.dayTabs}`);
   if (counts.budgetCards < 3) throw new Error(`expected budget cards, got ${counts.budgetCards}`);
+  if (counts.layer3Cards < 1) throw new Error("expected Layer 3 Sanqingshan card");
+  if (counts.layer3Options < 3) throw new Error(`expected at least 3 Layer 3 route options, got ${counts.layer3Options}`);
+  if (!counts.layer3Text.includes("三清山") || !counts.layer3Text.includes("金沙索道")) throw new Error("Layer 3 panel should show Sanqingshan route detail");
   if (!counts.budgetText.includes("费用估算") || !counts.budgetText.includes("酒店")) throw new Error("budget panel should show cost estimates");
   if (counts.mapCanvases < 1) throw new Error("expected at least one AMap canvas");
   if (counts.routeStatus.completed < 1) throw new Error(`expected at least one completed AMap route, got ${JSON.stringify(counts.routeStatus)}`);
@@ -136,7 +142,7 @@ if (!url) {
   }
 
   await browser.close();
-  console.log("Layer 2 browser check passed.", counts);
+  console.log("Layer 3 browser check passed.", counts);
 })().catch((error) => {
   console.error(error);
   process.exit(1);
