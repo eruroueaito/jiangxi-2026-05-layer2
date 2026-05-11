@@ -70,7 +70,7 @@
           <span>酒店</span>
         </article>
       </div>
-      <div class="budget-detail">打车变量：${data.budgetRules.taxiCnyPerKm}元/公里；高铁按12306样例二等座；酒店为1间房中端估算。</div>
+      <div class="budget-detail">打车变量：${data.budgetRules.taxiCnyPerKm}元/公里；高铁按12306目标日二等座；酒店为1间房中端估算。</div>
       <ul class="budget-list">
         ${(data.budget.hotelNights || []).map((item) => `<li>${item.date} ${item.city}：${money(item.unitCny)} × ${item.nights}晚</li>`).join("")}
         ${(data.budget.railTickets || []).map((item) => `<li>${item.train} ${item.from}→${item.to}：${item.unitCny}元/人 × ${item.travelers}人</li>`).join("")}
@@ -86,6 +86,8 @@
         <strong>${item.title}</strong>
         <div class="layer3-meta">入口：${item.entrance.recommended}｜${item.entrance.reason}</div>
         <div class="layer3-warning">${item.ticketAndCableway.planningWindow}</div>
+        <div class="layer3-meta">${item.ticketAndCableway.planningCost}</div>
+        <div class="layer3-meta">金沙索道：上行${item.ticketAndCableway.eastCablewayFare.upCny}元/人，下行${item.ticketAndCableway.eastCablewayFare.downCny}元/人；${item.ticketAndCableway.queueRule}</div>
         <div class="layer3-options">
           ${item.routeOptions.map((option) => `
             <div class="layer3-option">
@@ -410,7 +412,10 @@
       <ol class="schedule-list">${day.schedule.map((item) => `<li>${item}</li>`).join("")}</ol>
       <div class="poi-card-list">
         ${dayPois.map((poi, poiIndex) => {
-          const nextSegment = daySegments.find((segment) => segment.from === poi.id);
+          const nextPoi = dayPois[poiIndex + 1];
+          const nextSegment = nextPoi
+            ? daySegments.find((segment) => segment.from === poi.id && segment.to === nextPoi.id)
+            : null;
           return poiCardHtml(poi, nextSegment, poiIndex + 1);
         }).join("")}
       </div>

@@ -35,6 +35,10 @@ if (!url) {
     budgetCards: document.querySelectorAll(".budget-card").length,
     layer3Cards: document.querySelectorAll(".layer3-card").length,
     layer3Options: document.querySelectorAll(".layer3-option").length,
+    hasConcertVenue: (document.body.textContent || "").includes("南昌国际体育中心"),
+    hasJingdezhen: (document.body.textContent || "").includes("景德镇"),
+    hasDirectReturnTrain: (document.body.textContent || "").includes("G1378"),
+    hasReturnFallbackTrain: (document.body.textContent || "").includes("G1528+G7086"),
     budgetText: document.querySelector("#budget-panel")?.textContent || "",
     layer3Text: document.querySelector("#layer3-panel")?.textContent || "",
     mapCanvases: document.querySelectorAll(".amap-layers canvas").length,
@@ -46,13 +50,16 @@ if (!url) {
   if (counts.paths < 1) throw new Error(`expected AMap canvas/overlay paths, got ${counts.paths}`);
   if (counts.hasSegmentList) throw new Error("standalone adjacent transport segment list should be removed");
   if (counts.standaloneCards !== 0) throw new Error(`expected no standalone transport cards, got ${counts.standaloneCards}`);
-  if (counts.poiCards < 18) throw new Error(`expected at least 18 POI cards, got ${counts.poiCards}`);
-  if (counts.labels < 18) throw new Error(`expected route labels to remain on the map, got ${counts.labels}`);
-  if (counts.dayTabs !== 6) throw new Error(`expected 6 day tabs, got ${counts.dayTabs}`);
+  if (counts.poiCards < 20) throw new Error(`expected at least 20 POI cards, got ${counts.poiCards}`);
+  if (counts.labels < 20) throw new Error(`expected route labels to remain on the map, got ${counts.labels}`);
+  if (counts.dayTabs !== 4) throw new Error(`expected 4 day tabs, got ${counts.dayTabs}`);
   if (counts.budgetCards < 3) throw new Error(`expected budget cards, got ${counts.budgetCards}`);
   if (counts.layer3Cards < 1) throw new Error("expected Layer 3 Sanqingshan card");
   if (counts.layer3Options < 3) throw new Error(`expected at least 3 Layer 3 route options, got ${counts.layer3Options}`);
   if (!counts.layer3Text.includes("三清山") || !counts.layer3Text.includes("金沙索道")) throw new Error("Layer 3 panel should show Sanqingshan route detail");
+  if (!counts.hasConcertVenue) throw new Error("rebuilt route should include the concert venue");
+  if (counts.hasJingdezhen) throw new Error("rebuilt route should not include Jingdezhen");
+  if (!counts.hasDirectReturnTrain || !counts.hasReturnFallbackTrain) throw new Error("return rail risk and fallback should be visible");
   if (!counts.budgetText.includes("费用估算") || !counts.budgetText.includes("酒店")) throw new Error("budget panel should show cost estimates");
   if (counts.mapCanvases < 1) throw new Error("expected at least one AMap canvas");
   if (counts.routeStatus.completed < 1) throw new Error(`expected at least one completed AMap route, got ${JSON.stringify(counts.routeStatus)}`);

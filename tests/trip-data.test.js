@@ -1,56 +1,29 @@
 /**
- * 模块名称：Layer 2 trip data tests
- * 职责描述：校验江西七日游第二层日级路线、行李约束和相邻交通段是否完整一致
- * 输入/输出：读取 src/trip-data.js 与 src/route-utils.js，失败时抛出断言错误，成功时输出通过信息
- * 依赖关系：依赖 Node.js assert、trip-data 和 route-utils
- * 注意事项：只校验结构、顺序和估算，不代表实时交通、实时天气或最终购票信息
+ * 模块名称：Layer 3 trip data tests
+ * 职责描述：校验重构后的南昌演唱会与三清山半天+半天行程数据
+ * 输入/输出：读取 trip-data 和 route-utils；失败时抛出断言错误
+ * 依赖关系：Node.js assert、trip-data、route-utils
+ * 注意事项：只校验结构和规划约束，不代表实时票务/天气/景区公告
  */
 
 const assert = require("node:assert/strict");
 const { tripData } = require("../src/trip-data.js");
 const { createRouteSegments, estimateBudgetTotals, getRecommendedTransport, getVisibleDays } = require("../src/route-utils.js");
 
-function testUserConstraintsAreEncoded() {
+function testNewUserConstraintsAreEncoded() {
   assert.equal(tripData.layer, 3);
+  assert.equal(tripData.arrival.time, "2026-05-21 18:00");
+  assert.equal(tripData.departure.time, "2026-05-24 下午");
   assert.equal(tripData.fixedHotelIds.nanchang, "nanchang-hanting-xuefu-east");
-  assert.equal(tripData.arrival.stationId, "nanchang-west-station");
-  assert.equal(tripData.arrival.time, "2026-05-21 13:00");
-  assert.equal(tripData.departure.stationId, "shangrao-station");
-  assert.equal(tripData.departure.time, "2026-05-26 17:00");
-  assert.equal(tripData.luggagePolicy.mode, "drop-store-first");
+  assert.equal(tripData.days.length, 4);
+  assert.equal(tripData.days[1].poiIds.includes("nanchang-international-sports-center"), true);
 }
 
-function testSanqingshanLayerThreeIsEncoded() {
-  const deepDive = tripData.layer3?.find((item) => item.poiId === "sanqingshan-jinsha-lower");
-  assert.ok(deepDive, "missing Sanqingshan Layer 3 deep dive");
-  assert.equal(deepDive.entrance.recommended, "金沙索道");
-  assert.ok(deepDive.ticketAndCableway.refreshRequired, "Layer 3 ticket/cableway info should require refresh");
-  assert.ok(deepDive.routeOptions.some((option) => option.id === "compressed-classic" && option.minutes <= 360));
-  assert.ok(deepDive.routeOptions.some((option) => option.id === "bad-weather"));
-  assert.ok(deepDive.photoCheckpoints.length >= 4);
-  assert.ok(deepDive.risks.some((risk) => risk.includes("末班")));
-}
-
-function testSanqingshanInternalPoisAndSegmentsExist() {
-  const ids = new Set(tripData.pois.map((poi) => poi.id));
-  for (const id of [
-    "sanqingshan-jinsha-upper",
-    "sanqingshan-goddess",
-    "sanqingshan-python",
-    "sanqingshan-sunshine-coast",
-    "sanqingshan-west-coast",
-  ]) {
-    assert.ok(ids.has(id), `missing Sanqingshan Layer 3 POI: ${id}`);
-  }
-
-  const day6Ids = tripData.days.find((day) => day.day === 6).poiIds;
-  assert.ok(day6Ids.indexOf("sanqingshan-jinsha-upper") > day6Ids.indexOf("sanqingshan-jinsha-lower"));
-  assert.ok(day6Ids.includes("sanqingshan-west-coast"));
-
-  const segmentPairs = tripData.dailySegments.filter((segment) => segment.day === 6).map((segment) => `${segment.from}->${segment.to}`);
-  assert.ok(segmentPairs.includes("sanqingshan-jinsha-upper->sanqingshan-python"));
-  assert.ok(segmentPairs.includes("sanqingshan-python->sanqingshan-goddess"));
-  assert.ok(segmentPairs.includes("sanqingshan-sunshine-coast->sanqingshan-west-coast"));
+function testJingdezhenIsRemoved() {
+  const serialized = JSON.stringify(tripData);
+  assert.ok(!serialized.includes("景德镇"), "Jingdezhen should be removed from the rebuilt route");
+  assert.ok(!serialized.includes("taoxichuan"), "Taoxichuan should not remain in IDs");
+  assert.ok(!serialized.includes("ceramic"), "Ceramic museum IDs should not remain");
 }
 
 function testMustSeePoisExist() {
@@ -64,82 +37,72 @@ function testCoreCoordinatesArePlausible() {
   for (const poi of tripData.pois.filter((item) => item.core)) {
     assert.equal(typeof poi.lng, "number", `${poi.id} lng must be numeric`);
     assert.equal(typeof poi.lat, "number", `${poi.id} lat must be numeric`);
-    assert.ok(poi.lng >= 115 && poi.lng <= 119, `${poi.id} lng outside route range`);
-    assert.ok(poi.lat >= 28 && poi.lat <= 30, `${poi.id} lat outside route range`);
+    assert.ok(poi.lng >= 115 && poi.lng <= 121, `${poi.id} lng outside route range`);
+    assert.ok(poi.lat >= 28 && poi.lat <= 32, `${poi.id} lat outside route range`);
   }
 }
 
-function testDailyPoiOrderMatchesPlan() {
+function testDailyPlanMatchesRebuiltRoute() {
   assert.deepEqual(tripData.days.map((day) => day.base), [
     "南昌固定酒店",
     "南昌固定酒店",
-    "景德镇陶溪川/陶阳里",
-    "景德镇陶溪川/陶阳里",
     "三清山金沙索道口",
-    "上饶站离开",
+    "上饶返常州",
   ]);
-  assert.deepEqual(tripData.days[0].poiIds, ["nanchang-west-station", "nanchang-hanting-xuefu-east", "nanchang-vientiane"]);
-  assert.ok(tripData.days[5].poiIds.includes("sanqingshan-jinsha-lower"));
-  assert.equal(tripData.days.length, 6);
+  assert.ok(tripData.days[2].schedule.some((item) => item.includes("G1344")));
+  assert.ok(tripData.days[3].schedule.some((item) => item.includes("G1378")));
+  assert.ok(tripData.days[3].schedule.some((item) => item.includes("G1528+G7086")));
 }
 
-function testWuyuanAndHuanglingAreRemoved() {
-  const allPoiIds = tripData.pois.map((poi) => poi.id);
-  const allDayPoiIds = tripData.days.flatMap((day) => day.poiIds);
-  const allSegmentIds = tripData.dailySegments.flatMap((segment) => [segment.from, segment.to]);
-  for (const id of ["huangling", "wuyuan-station"]) {
-    assert.ok(!allPoiIds.includes(id), `${id} should be removed from POIs`);
-    assert.ok(!allDayPoiIds.includes(id), `${id} should be removed from days`);
-    assert.ok(!allSegmentIds.includes(id), `${id} should be removed from segments`);
-  }
-  assert.ok(!JSON.stringify(tripData).includes("包车"), "charter/package car should not appear in revised guide");
+function testSanqingshanHalfDayPlusHalfDayLayerThree() {
+  const deepDive = tripData.layer3?.find((item) => item.poiId === "sanqingshan-jinsha-lower");
+  assert.ok(deepDive, "missing Sanqingshan Layer 3 deep dive");
+  assert.equal(deepDive.entrance.recommended, "金沙索道");
+  assert.ok(deepDive.ticketAndCableway.refreshRequired);
+  assert.ok(deepDive.routeOptions.some((option) => option.id === "day3-afternoon-core"));
+  assert.ok(deepDive.routeOptions.some((option) => option.id === "day4-morning-extension"));
+  assert.ok(deepDive.routeOptions.some((option) => option.id === "ticket-risk-fallback"));
+  assert.equal(deepDive.ticketAndCableway.eastCablewayFare.roundTripCny, 125);
+  assert.ok(deepDive.ticketAndCableway.queueRule.includes("取号"));
+  assert.ok(deepDive.risks.some((risk) => risk.includes("G1378")));
+}
+
+function testRailChecksAreExactTargetDateQueries() {
+  assert.equal(tripData.railChecks.checkedAt, "2026-05-10");
+  assert.equal(tripData.railChecks.stationCodes["南昌西"], "NXG");
+  assert.equal(tripData.railChecks.stationCodes["上饶"], "SRG");
+  assert.equal(tripData.railChecks.stationCodes["常州北"], "ESH");
+
+  const day3 = tripData.railChecks.items.find((item) => item.id === "day3-nanchang-west-shangrao");
+  assert.ok(day3);
+  assert.ok(day3.recommendation.includes("G1344"));
+  assert.ok(day3.candidates.some((candidate) => candidate.train === "G1344" && candidate.status === "有票"));
+
+  const day4 = tripData.railChecks.items.find((item) => item.id === "day4-shangrao-changzhou");
+  assert.ok(day4);
+  assert.ok(day4.recommendation.includes("G1378"));
+  assert.ok(day4.candidates.some((candidate) => candidate.train === "G1378" && candidate.status === "无票"));
+  assert.ok(day4.candidates.some((candidate) => candidate.train === "G1528+G7086" && candidate.status.includes("有票")));
 }
 
 function testEachAdjacentSegmentHasTransport() {
   const segments = createRouteSegments(tripData);
-  assert.ok(segments.length >= 12, "Layer 2 should include daily adjacent segments");
+  assert.ok(segments.length >= 20, "rebuilt route should include city, mountain, and return segments");
   for (const segment of segments) {
     assert.ok(segment.from && segment.to, "segment endpoints are required");
     assert.ok(segment.day, `segment lacks day: ${segment.from}->${segment.to}`);
-    assert.ok(segment.transport?.note || segment.transport?.drivingKm || segment.transport?.walkingM || segment.transport?.rail || segment.transport?.shuttle, `segment lacks transport estimate: ${segment.from}->${segment.to}`);
+    assert.ok(segment.transport?.note || segment.transport?.drivingKm || segment.transport?.walkingM || segment.transport?.rail || segment.transport?.shuttle || segment.transport?.cableway, `segment lacks transport estimate: ${segment.from}->${segment.to}`);
   }
 }
 
-function testNoUnnecessaryLongTaxiSegments() {
-  for (const segment of tripData.dailySegments) {
-    const transport = segment.transport || {};
-    const isTaxi = transport.drivingMin && !transport.rail && !transport.shuttle && !transport.walkingOnly;
-    assert.ok(!isTaxi || transport.drivingMin <= tripData.budgetRules.maxNonEssentialTaxiMin, `${segment.from}->${segment.to} is an overlong taxi segment`);
-  }
-}
-
-function testRecommendedTransportShowsOneTime() {
+function testRecommendedTransportSupportsRailShuttleAndCableway() {
   const segments = createRouteSegments(tripData);
   const byPair = new Map(segments.map((segment) => [`${segment.from}->${segment.to}`, getRecommendedTransport(segment)]));
-
-  assert.deepEqual(byPair.get("nanchang-west-station->nanchang-hanting-xuefu-east"), {
-    mode: "打车",
-    minutes: 17,
-    label: "打车 17分钟",
-    geometry: "driving",
-  });
-  assert.deepEqual(byPair.get("nanchang-hanting-xuefu-east->nanchang-vientiane"), {
-    mode: "步行",
-    minutes: 8,
-    label: "步行 8分钟",
-    geometry: "walking",
-  });
-  assert.deepEqual(byPair.get("nanchang-east-station->jingdezhen-north-station"), {
+  assert.deepEqual(byPair.get("nanchang-west-station->shangrao-station"), {
     mode: "高铁",
-    minutes: 54,
-    label: "高铁 54分钟",
+    minutes: 55,
+    label: "高铁 55分钟",
     geometry: "rail",
-  });
-  assert.deepEqual(byPair.get("sanqingshan-hanting-jinsha->sanqingshan-jinsha-lower"), {
-    mode: "打车",
-    minutes: 4,
-    label: "打车 4分钟",
-    geometry: "driving",
   });
   assert.deepEqual(byPair.get("shangrao-station->sanqingshan-hanting-jinsha"), {
     mode: "班车/接驳",
@@ -147,76 +110,51 @@ function testRecommendedTransportShowsOneTime() {
     label: "班车/接驳 95分钟",
     geometry: "straight",
   });
+  assert.deepEqual(byPair.get("sanqingshan-jinsha-lower->sanqingshan-jinsha-upper"), {
+    mode: "索道",
+    minutes: 10,
+    label: "索道 10分钟",
+    geometry: "straight",
+  });
 }
 
-function testLuggageSensitiveSegmentsAreFlagged() {
-  const segments = createRouteSegments(tripData).filter((segment) => segment.luggage === true);
-  const labels = segments.map((segment) => `${segment.from}->${segment.to}`);
-  assert.ok(labels.includes("nanchang-west-station->nanchang-hanting-xuefu-east"));
-  assert.ok(labels.includes("nanchang-hanting-xuefu-east->nanchang-east-station"));
-  assert.ok(labels.includes("jingdezhen-hanting-taoxichuan->jingdezhen-north-station"));
-  assert.ok(labels.includes("sanqingshan-hanting-jinsha->shangrao-station"));
-}
-
-function testRailChecksFrom12306AreEncoded() {
-  assert.equal(tripData.railChecks.source, "12306 MCP");
-  assert.equal(tripData.railChecks.stationCodes["南昌东"], "NUG");
-  assert.equal(tripData.railChecks.stationCodes["景德镇北"], "JDG");
-  assert.ok(tripData.railChecks.queryLimitations.includes("2026-05-23"));
-  assert.ok(tripData.railChecks.queryLimitations.includes("2026-05-25"));
-
-  const day3Check = tripData.railChecks.items.find((item) => item.id === "day3-nanchang-east-jingdezhen-north");
-  assert.ok(day3Check, "missing Day 3 12306 rail check");
-  assert.equal(day3Check.comparableDate, "2026-05-09");
-  assert.equal(day3Check.recommendedTrain, "D6360");
-  assert.equal(day3Check.recommendedMinutes, 54);
-  assert.ok(day3Check.recommendation.includes("15:18"));
-  assert.ok(day3Check.candidates.some((candidate) => candidate.train === "G3068" && candidate.duration === "00:42"));
-
-  const day5Check = tripData.railChecks.items.find((item) => item.id === "day5-jingdezhen-shangrao-transfer");
-  assert.ok(day5Check, "missing Day 5 Shangrao rail transfer check");
-  assert.equal(day5Check.recommendedTrain, "G1456");
-  assert.equal(day5Check.recommendedMinutes, 52);
-}
-
-function testDayTwoDoesNotBacktrackToHotelBeforeTengwangPavilion() {
-  const day2Pairs = tripData.dailySegments.filter((segment) => segment.day === 2).map((segment) => `${segment.from}->${segment.to}`);
-  assert.ok(day2Pairs.includes("jiangxi-museum->tengwang-pavilion"));
-  assert.ok(!day2Pairs.includes("jiangxi-museum->nanchang-hanting-xuefu-east"));
-  assert.ok(!day2Pairs.includes("nanchang-hanting-xuefu-east->tengwang-pavilion"));
+function testNoUnnecessaryLongTaxiSegments() {
+  for (const segment of tripData.dailySegments) {
+    const transport = segment.transport || {};
+    const isTaxi = transport.drivingMin && !transport.rail && !transport.shuttle && !transport.cableway;
+    assert.ok(!isTaxi || transport.drivingMin <= tripData.budgetRules.maxNonEssentialTaxiMin, `${segment.from}->${segment.to} is an overlong taxi segment`);
+  }
 }
 
 function testBudgetEstimatesAreEncoded() {
   assert.equal(tripData.budgetRules.taxiCnyPerKm, 3);
   assert.equal(tripData.budgetRules.travelers, 2);
-  assert.ok(tripData.budget.hotelNights.length >= 5);
-  assert.ok(tripData.budget.railTickets.some((ticket) => ticket.train === "D6360" && ticket.unitCny === 86));
-  assert.ok(tripData.budget.railTickets.some((ticket) => ticket.train === "G1456" && ticket.unitCny === 63.5));
+  assert.equal(tripData.budget.hotelNights.length, 3);
+  assert.ok(tripData.budget.railTickets.some((ticket) => ticket.train === "G1344" && ticket.unitCny === 113));
+  assert.ok(tripData.budget.railTickets.some((ticket) => ticket.train === "G1378" && ticket.unitCny === 332));
 
   const totals = estimateBudgetTotals(tripData);
-  assert.ok(totals.transportCny > 0);
-  assert.ok(totals.hotelCny > 0);
-  assert.ok(totals.totalCny === totals.transportCny + totals.hotelCny);
+  assert.ok(totals.transportCny > 1400);
+  assert.equal(totals.segmentTransportCny >= 500, true);
+  assert.ok(totals.hotelCny === 820);
+  assert.equal(totals.totalCny, totals.transportCny + totals.hotelCny);
 }
 
 function testVisibleDaysDefaultToAllDays() {
   assert.equal(getVisibleDays(tripData).length, tripData.days.length);
 }
 
-testUserConstraintsAreEncoded();
-testSanqingshanLayerThreeIsEncoded();
-testSanqingshanInternalPoisAndSegmentsExist();
+testNewUserConstraintsAreEncoded();
+testJingdezhenIsRemoved();
 testMustSeePoisExist();
 testCoreCoordinatesArePlausible();
-testDailyPoiOrderMatchesPlan();
-testWuyuanAndHuanglingAreRemoved();
+testDailyPlanMatchesRebuiltRoute();
+testSanqingshanHalfDayPlusHalfDayLayerThree();
+testRailChecksAreExactTargetDateQueries();
 testEachAdjacentSegmentHasTransport();
+testRecommendedTransportSupportsRailShuttleAndCableway();
 testNoUnnecessaryLongTaxiSegments();
-testRecommendedTransportShowsOneTime();
-testLuggageSensitiveSegmentsAreFlagged();
-testRailChecksFrom12306AreEncoded();
-testDayTwoDoesNotBacktrackToHotelBeforeTengwangPavilion();
 testBudgetEstimatesAreEncoded();
 testVisibleDaysDefaultToAllDays();
 
-console.log("Layer 3 trip data tests passed.");
+console.log("Rebuilt Jiangxi route tests passed.");
